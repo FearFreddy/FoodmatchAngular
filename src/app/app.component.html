@@ -1,0 +1,21 @@
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+  <a class="navbar-brand" href="#">
+    <img class="logo" src="../assets/images/foodmatch_logo.svg" alt="foodmatch_logo" />
+  </a>
+  <div class="collapse navbar-collapse flex-grow-1 text-right" id="myNavbar7">
+    <ul class="navbar-nav ml-auto flex-nowrap">
+      <li class="nav-item">
+        <a class="nav-link" routerLink="/stock" routerLinkActive="active">Stock</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" routerLink="/recipes" routerLinkActive="active">Recipes</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" routerLink="/shopping-list" routerLinkActive="active">Shopping List</a>
+      </li>
+    </ul>
+  </div>
+</nav>
+<div class="container">
+  <router-outlet></router-outlet>
+</div>

@@ -1,0 +1,20 @@
+<h2>Stock</h2>
+<p>Add ingredients to your stock</p>
+<ng-select (change)="addItem($event)" [items]="ingredients$ | async" bindLabel="name" [hideSelected]="true"
+  [trackByFn]="trackByFn" [minTermLength]="2" [loading]="ingredientsLoading"
+  typeToSearchText="e.g. Salt, Shrimp, Low fat cottage cheese" [typeahead]="ingredientInput$" (add)="onAdd($event)">
+</ng-select>
+<br />
+<br />
+<h3>Your stock:</h3>
+<div class="fridge" style="margin-bottom:100px">
+  <span class="aisle-container" *ngFor="let aisle of savedIngredientsSorted | keyvalue">
+    <h1>{{aisle.key}}</h1>
+    <span class="badge badge-light ingredient-container" *ngFor="let ingredient of aisle.value">
+      <span>{{ ingredient.name }}</span>
+      <span class="closebtn" (click)="deleteItem(ingredient)">
+        <fa-icon [icon]="faTimes"></fa-icon>
+      </span>
+    </span>
+  </span>
+</div>

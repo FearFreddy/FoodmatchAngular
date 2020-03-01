@@ -1,0 +1,13 @@
+/* You can add global styles to this file, and also import other style files */
+@import "~@ng-select/ng-select/themes/default.theme.css";
+@import "~bootstrap/dist/css/bootstrap.min.css";
+
+nav {
+  a {
+    margin-right: 10px;
+  }
+}
+
+h2, h3 {
+  margin-bottom: 20px;
+}

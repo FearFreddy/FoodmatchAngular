@@ -1,0 +1,39 @@
+.fridge {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  .aisle-container {
+    width: 49%;
+    min-width: 300px;
+    background-color: #eee;
+    border-radius: 5px;
+    padding: 20px;
+    box-sizing: border-box;
+    overflow: hidden;
+    margin-bottom: 2%;
+    h1 {
+      font-size: 1.5em;
+      margin-bottom: 10px;
+    }
+    .badge {
+      border-radius: 30px;
+      margin: 6px 6px 6px 0;
+      padding: 0.5em 0.75em;
+      font-size: 1.05em;
+      background-color: white;
+      * {
+        margin: 0 3px;
+      }
+  
+      .closebtn {
+        margin-right: 0.25rem;
+        color: grey;
+      }
+  
+      .closebtn:hover {
+        color: black;
+        cursor: pointer;
+      }
+    }
+  }
+}

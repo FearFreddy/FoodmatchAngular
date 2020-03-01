@@ -1,0 +1,169 @@
+<h2>Recipes</h2>
+<p>Look for recipes</p>
+
+<input type="text" class="form-control" (input)="loadRecipes()" [(ngModel)]="searchTerm"
+  placeholder="e.g. Soft and chewy lemon cookies, Pan-fried peanut butter jelly sandwich" />
+
+<br />
+
+<div class="filter-switches-container">
+  <div class="custom-control custom-switch" *ngFor="let filter of filters">
+    <input type="checkbox" class="custom-control-input" id="{{filter.text}}" (change)="loadRecipes()"
+      [(ngModel)]="filter.status" checked>
+    <label class="custom-control-label" for="{{filter.text}}">{{filter.text}}</label>
+  </div>
+</div>
+
+<div *ngIf="filters[0].status; then filteredRecipes else unfilteredRecipes"></div>
+
+<!-- Unfiltered recipes and modal -->
+
+<ng-template #unfilteredRecipes>
+  <div class="recipe-cards-container">
+    <div class="card" (click)="selectRecipe(recipe); openLg(unfiltered)" *ngFor="let recipe of recipes">
+      <img src="https://spoonacular.com/recipeImages/{{ recipe.id }}-480x360.jpg" class="card-img-top" alt="...">
+      <fa-icon size="2x" *ngIf="user.favoriteRecipe.includes(recipe.id)" class="fa-absolute"
+        (click)="removeFavorite(recipe.id); $event.stopPropagation()" [icon]="faStar"></fa-icon>
+      <fa-icon size="2x" *ngIf="!user.favoriteRecipe.includes(recipe.id)" class="fa-absolute"
+        (click)="addFavorite(recipe.id); $event.stopPropagation()" [icon]="faStarRegular"></fa-icon>
+      <div class="card-body">
+        <h4 class="card-title">{{ recipe.title }}</h4>
+        <p class="card-text">Ready in {{ recipe.readyInMinutes }} minutes</p>
+        <span *ngIf="recipe.vegan" class="badge badge-secondary">vegan</span>
+        <span *ngIf="recipe.vegetarian" class="badge badge-secondary">vegetarian</span>
+        <span *ngIf="recipe.glutenFree" class="badge badge-secondary">gluten free</span>
+        <span *ngIf="recipe.veryHealthy" class="badge badge-secondary">very healthy</span>
+        <span *ngIf="recipe.dairyFree" class="badge badge-secondary">dairy free</span>
+      </div>
+    </div>
+  </div>
+</ng-template>
+
+<ng-template #unfiltered let-modal>
+  <div class="modal-content-container">
+    <div class="card modal-card" style="width: 18rem;">
+      <img src="https://spoonacular.com/recipeImages/{{ clickedRecipe.id }}-480x360.jpg" class="card-img-top" alt="...">
+      <div class="card-body">
+        <h4 class="card-title">{{ clickedRecipe.title }}</h4>
+        <p class="card-text">Ready in {{ clickedRecipe.readyInMinutes }} minutes</p>
+        <span *ngIf="clickedRecipe.vegan" class="badge badge-secondary">vegan</span>
+        <span *ngIf="clickedRecipe.vegetarian" class="badge badge-secondary">vegetarian</span>
+        <span *ngIf="clickedRecipe.glutenFree" class="badge badge-secondary">gluten free</span>
+        <span *ngIf="clickedRecipe.veryHealthy" class="badge badge-secondary">very healthy</span>
+        <span *ngIf="clickedRecipe.dairyFree" class="badge badge-secondary">dairy free</span>
+        <div class="card-action">
+          <button *ngIf="!user.favoriteRecipe.includes(clickedRecipe.id)" class="btn btn-outline-warning"
+            (click)="addFavorite(clickedRecipe.id)">
+            <span>Add to favorite recipes</span>
+          </button>
+          <button *ngIf="user.favoriteRecipe.includes(clickedRecipe.id)" class="btn btn-warning"
+            (click)="removeFavorite(clickedRecipe.id)">
+            <span>Remove from favorites</span>
+          </button>
+        </div>
+      </div>
+    </div>
+    <div class="recipe-information">
+      <h5>Ingredients ({{ clickedRecipe.extendedIngredients.length }}): </h5>
+      <span class="badge badge-dark" *ngFor="let missing of clickedRecipe.extendedIngredients">{{missing.name}}</span>
+      <h5>
+        Instructions
+        <fa-icon class="fa-chevron" (click)="toggleInstructions()"
+          [icon]="showInstructions ? faChevronUp : faChevronDown">
+        </fa-icon>
+      </h5>
+      <p *ngIf="showInstructions">{{ clickedRecipe.instructions }}</p>
+    </div>
+  </div>
+</ng-template>
+
+<!-- Filtered recipes and modal based on ingredients -->
+
+<ng-template #filteredRecipes>
+  <div class="recipe-cards-container">
+    <div class="card" (click)="selectRecipe(recipe); openLg(filtered)" *ngFor="let recipe of recipesByIngredient">
+      <img src="https://spoonacular.com/recipeImages/{{ recipe.recipe.id }}-480x360.jpg" class="card-img-top" alt="...">
+      <fa-icon size="2x" *ngIf="user.favoriteRecipe.includes(recipe.recipe.id)" class="fa-absolute"
+        (click)="removeFavorite(recipe.recipe.id); $event.stopPropagation()" [icon]="faStar"></fa-icon>
+      <fa-icon size="2x" *ngIf="!user.favoriteRecipe.includes(recipe.recipe.id)" class="fa-absolute"
+        (click)="addFavorite(recipe.recipe.id); $event.stopPropagation()" [icon]="faStarRegular"></fa-icon>
+      <div class="card-body">
+        <h4 class="card-title">{{ recipe.recipe.title }}</h4>
+        <span *ngIf="recipe.missingIngredient.length != 0" class="missing-text">{{recipe.missingIngredient.length}}
+          ingredients missing</span>
+        <span *ngIf="recipe.missingIngredient.length == 0" class="no-missing-text">No ingredients missing!</span>
+        <p class="card-text">Ready in {{ recipe.recipe.readyInMinutes }} minutes</p>
+        <span *ngIf="recipe.recipe.vegan" class="badge badge-secondary">vegan</span>
+        <span *ngIf="recipe.recipe.vegetarian" class="badge badge-secondary">vegetarian</span>
+        <span *ngIf="recipe.recipe.glutenFree" class="badge badge-secondary">gluten free</span>
+        <span *ngIf="recipe.recipe.veryHealthy" class="badge badge-secondary">very healthy</span>
+        <span *ngIf="recipe.recipe.dairyFree" class="badge badge-secondary">dairy free</span>
+      </div>
+    </div>
+  </div>
+</ng-template>
+
+<ng-template #filtered let-modal>
+  <div class="modal-content-container">
+    <div class="card modal-card" style="width: 18rem;">
+      <img src="https://spoonacular.com/recipeImages/{{ clickedRecipe.recipe.id }}-480x360.jpg" class="card-img-top"
+        alt="...">
+      <div class="card-body">
+        <h4 class="card-title">{{ clickedRecipe.recipe.title }}</h4>
+        <p class="card-text">Ready in {{ clickedRecipe.recipe.readyInMinutes }} minutes</p>
+        <span *ngIf="clickedRecipe.recipe.vegan" class="badge badge-secondary">vegan</span>
+        <span *ngIf="clickedRecipe.recipe.vegetarian" class="badge badge-secondary">vegetarian</span>
+        <span *ngIf="clickedRecipe.recipe.glutenFree" class="badge badge-secondary">gluten free</span>
+        <span *ngIf="clickedRecipe.recipe.veryHealthy" class="badge badge-secondary">very healthy</span>
+        <span *ngIf="clickedRecipe.recipe.dairyFree" class="badge badge-secondary">dairy free</span>
+        <div class="card-action">
+          <button *ngIf="!user.favoriteRecipe.includes(clickedRecipe.recipe.id)" class="btn btn-outline-warning"
+            (click)="addFavorite(clickedRecipe.recipe.id)">
+            <span>Add to favorite recipes</span>
+          </button>
+          <button *ngIf="user.favoriteRecipe.includes(clickedRecipe.recipe.id)" class="btn btn-warning"
+            (click)="removeFavorite(clickedRecipe.recipe.id)">
+            <span>Remove from favorites</span>
+          </button>
+        </div>
+      </div>
+    </div>
+    <div class="recipe-information">
+      <h5>Available ingredients ({{ clickedRecipe.availableIngredient.length }}): </h5>
+      <span class="badge badge-dark"
+        *ngFor="let available of clickedRecipe.availableIngredient">{{available.name}}</span>
+      <br />
+      <h5>Missing ingredients ({{ clickedRecipe.missingIngredient.length }}): </h5>
+      <span class="badge badge-dark" *ngFor="let missing of clickedRecipe.missingIngredient">{{missing.name}}</span>
+      <button class="btn btn-success" (click)="addToShoppingList(clickedRecipe.missingIngredient)"
+        *ngIf="!shoppingListContainsAll(clickedRecipe.missingIngredient)">
+        Add missing ingredients to shopping list <b style="font-size: 1.2em; line-height: 1em;"
+          *ngIf="!loadingSpinner">→</b>
+        <div class="lds-ring" *ngIf="loadingSpinner">
+          <div></div>
+          <div></div>
+          <div></div>
+          <div></div>
+        </div>
+      </button>
+
+      <span *ngIf="clickedRecipe.missingIngredient.length == 0">You have all necessary
+        ingredients in your stock!</span>
+      <br />
+      <span class="ingredients-complete"
+        *ngIf="clickedRecipe.missingIngredient.length != 0 && shoppingListContainsAll(clickedRecipe.missingIngredient)">
+        All missing ingredients are in your shopping list!
+        <fa-icon class="fa-checkmark" [icon]="faCheck"></fa-icon>
+      </span>
+      <h5>
+        Instructions
+        <fa-icon class="fa-chevron" (click)="toggleInstructions()"
+          [icon]="showInstructions ? faChevronUp : faChevronDown">
+        </fa-icon>
+      </h5>
+      <p *ngIf="showInstructions">
+        {{ clickedRecipe.recipe.instructions }}
+      </p>
+    </div>
+  </div>
+</ng-template>

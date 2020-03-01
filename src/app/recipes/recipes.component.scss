@@ -1,0 +1,129 @@
+h5 {
+    margin: 10px 0;
+}
+
+input {
+    margin-bottom: 20px;
+}
+.filter-switches-container {
+    margin-bottom: 10px;
+}
+.missing-text {
+    color: red;
+}
+.no-missing-text {
+    color: #1e7e34;
+}
+.custom-switch {
+    display: inline-block;
+    padding-right: 20px;
+}
+
+.badge {
+    margin-right: 5px;
+    padding: 5px;
+}
+.badge-dark {
+    border-radius: 30px;
+    margin: 6px 6px 6px 0;
+    padding: 0.5em 0.75em;
+    font-size: 1.05em;
+}
+.btn.btn-success {
+    display: block;
+    margin: 20px 0 0 0;
+}
+.recipe-cards-container {
+    display: flex;
+    flex-flow: row;
+    flex-wrap: wrap;
+    .card {
+        width: calc(33.333% - 40px);
+        margin: 20px;
+    }
+}
+
+.fa-absolute {
+    color: #ffc107;
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    cursor: pointer;
+}
+
+.fa-chevron {
+    position: relative;
+    top: 2px;
+    left: 5px;
+    cursor: pointer;
+}
+// Modal stuff
+.modal-content-container {
+    display: flex;
+}
+.modal-content {
+    justify-content: center;
+}
+.modal-content .card {
+    margin: 20px;
+}
+.modal-card {
+    margin: 0;
+    flex: 1;
+}
+.recipe-information {
+    padding: 20px;
+    flex: 2;
+}
+.card-action {
+    margin-top: 20px;
+}
+
+.ingredients-complete {
+    display: inline-block;
+    white-space: nowrap;
+    margin: 20px 0 0 0;
+    color: white;
+    background-color: #1e7e34;
+    padding: .375rem .75rem;
+    border-radius: .25rem;
+    line-height: 1.5;
+    font-size: 1rem;
+}
+
+.lds-ring {
+    display: inline-block;
+    position: relative;
+    width: 20px;
+    height: 20px;
+  }
+  .lds-ring div {
+    box-sizing: border-box;
+    display: block;
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    margin: 6px;
+    border: 2px solid #fff;
+    border-radius: 50%;
+    animation: lds-ring 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite;
+    border-color: #fff transparent transparent transparent;
+  }
+  .lds-ring div:nth-child(1) {
+    animation-delay: -0.45s;
+  }
+  .lds-ring div:nth-child(2) {
+    animation-delay: -0.3s;
+  }
+  .lds-ring div:nth-child(3) {
+    animation-delay: -0.15s;
+  }
+  @keyframes lds-ring {
+    0% {
+      transform: rotate(0deg);
+    }
+    100% {
+      transform: rotate(360deg);
+    }
+  }
+  
