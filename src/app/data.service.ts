@@ -47,7 +47,7 @@ export interface RecipeByIngredients {
 })
 export class DataService {
 
-    hostname: string = "https://morning-harbor-68780.herokuapp.com"
+    hostname: string = "https://morning-harbor-68780.herokuapp.com/"
     spoonacular: string = "https://api.spoonacular.com/food/ingredients/autocomplete?query=${term}&number=50&apiKey=ecf9e428c5214fdea95e82879ae07f76"
 
     currentUser: BehaviorSubject<User> = new BehaviorSubject<User>(null);
