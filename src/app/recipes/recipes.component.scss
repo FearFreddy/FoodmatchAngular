@@ -58,6 +58,9 @@ input {
     cursor: pointer;
 }
 // Modal stuff
+.modal-dialog {
+    margin: 2.5rem;
+}
 .modal-content-container {
     display: flex;
 }
@@ -127,3 +130,16 @@ input {
     }
   }
   
+@media screen and (max-width: 1000px) {
+    .recipe-cards-container {
+        .card {
+            width: 100%;
+        }
+    }
+    .modal-content-container {
+        flex-flow: column;
+        .card {
+            width: 100%;
+        }
+    }
+}
