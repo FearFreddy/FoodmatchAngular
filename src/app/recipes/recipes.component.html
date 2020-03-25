@@ -64,8 +64,9 @@
       </div>
     </div>
     <div class="recipe-information">
-      <h5>Ingredients ({{ clickedRecipe.missedIngredients.length + clickedRecipe.usedIngredients.length }}): </h5>
-      <span class="badge badge-dark" *ngFor="let missing of clickedRecipe.extendedIngredients">{{missing.name}}</span>
+      <h5>Ingredients ({{ clickedRecipe.extendedIngredients.length }}): </h5>
+      <span class="badge badge-dark"
+        *ngFor="let ingredient of clickedRecipe.extendedIngredients">{{ingredient.name}}</span>
       <h5>
         Instructions
         <fa-icon class="fa-chevron" (click)="toggleInstructions()"
