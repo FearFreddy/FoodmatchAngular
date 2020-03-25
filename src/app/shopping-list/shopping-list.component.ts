@@ -41,7 +41,7 @@ export class ShoppingListComponent implements OnInit {
 
   addItem($selectedIngredient) {
     if ($selectedIngredient) {
-      this.dataService.saveIngredient(this.user.id, true, $selectedIngredient.id)
+      this.dataService.saveIngredient(this.user.id, true, $selectedIngredient)
         .pipe(tap(() => this.dataService.setUserByName("Miro")))
         .subscribe(() => this.loadAndSortShoppingList());
     }
@@ -60,7 +60,7 @@ export class ShoppingListComponent implements OnInit {
   }
 
   boughtItem($selectedIngredient) {
-    this.dataService.saveIngredient(this.user.id, false, $selectedIngredient.id).subscribe(() => this.deleteItem($selectedIngredient));
+    this.dataService.saveIngredient(this.user.id, false, $selectedIngredient).subscribe(() => this.deleteItem($selectedIngredient));
   }
 
   /**

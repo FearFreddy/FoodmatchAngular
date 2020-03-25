@@ -15,3 +15,17 @@ nav {
     font-size: 1.2em;
   }
 }
+
+@media screen and (max-width: 1000px) {
+  nav {
+    .navbar-brand {
+      display: none;
+    }
+    .navbar-nav {
+      flex-direction: row;
+    }
+    li {
+      margin-right: 15px;
+    }
+  }
+}

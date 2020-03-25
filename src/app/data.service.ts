@@ -1,12 +1,14 @@
 import { Injectable } from '@angular/core';
 import { Observable, of, BehaviorSubject } from 'rxjs';
-import { tap } from 'rxjs/operators'
+import { map } from 'rxjs/operators'
 import { HttpClient } from '@angular/common/http';
 
 export interface User {
     male: boolean;
     savedIngredients: number[];
     neededIngredients: number[];
+    neededSavedIngredients: Ingredient[];
+    availableSavedIngredients: Ingredient[];
     favoriteRecipe: number[];
     id: number;
     firstname: string;
@@ -17,6 +19,7 @@ export interface Ingredient {
     id: number;
     name: string;
     aisle: string;
+    image: string;
 }
 export interface Recipe {
     id: number;
@@ -37,9 +40,11 @@ export interface Recipes {
 }
 
 export interface RecipeByIngredients {
-    recipe: Recipe;
-    missingIngredient: Ingredient[];
-    availableIngredient: Ingredient[];
+    id: number;
+    title: string;
+    image: string;
+    missedIngredients: Ingredient[];
+    usedIngredients: Ingredient[];
 }
 
 @Injectable({
@@ -48,7 +53,8 @@ export interface RecipeByIngredients {
 export class DataService {
 
     hostname: string = "https://morning-harbor-68780.herokuapp.com/"
-    spoonacular: string = "https://api.spoonacular.com/food/ingredients/autocomplete?query=${term}&number=50&apiKey=ecf9e428c5214fdea95e82879ae07f76"
+    // hostname: string = "http://localhost:8080/"
+    apiKey: string = "c343924f10834fb9800e858f2858b9ed"
 
     currentUser: BehaviorSubject<User> = new BehaviorSubject<User>(null);
 
@@ -76,18 +82,19 @@ export class DataService {
         });
     }
 
-    getIngredientsOfUser(userId: number = null, isShoppingList: boolean = false): Observable<Ingredient[]> {
-        return this.http.get<Ingredient[]>(this.hostname + `user/ingredients?userId=` + userId + `&isShoppingList=` + isShoppingList);
+    getIngredientsOfUser(userId: number = null, isShoppingList: boolean = false): Observable<any> {
+        return this.http.get<Ingredient[]>(this.hostname + `user/savedIngredients?userId=` + userId + `&isShoppingList=` + isShoppingList)
     }
 
-    saveIngredient(userId: number, isShoppingList: boolean, ingredientId: number) {
+    saveIngredient(userId: number, isShoppingList: boolean, ingredient: any) {
         return this.http
-            .get(this.hostname + `user/addIngredient?userId=` + userId + `&isShoppingList=` + isShoppingList + `&ingredientId=` + ingredientId)
+            .post(this.hostname + `user/addSavedIngredient?userId=` + userId + `&isShoppingList=` + isShoppingList, ingredient)
     }
 
     removeIngredient(userId: number, isShoppingList: boolean, ingredientId: number) {
         return this.http
-            .get(this.hostname + `user/removeIngredient?userId=` + userId + `&isShoppingList=` + isShoppingList + `&ingredientId=` + ingredientId)
+            .get(this.hostname + `user/removeSavedIngredient?userId=` + userId + `&isShoppingList=` + isShoppingList + `&ingredientId=` + ingredientId)
+
     }
 
     saveRecipe(userId: number, recipeId: number) {
@@ -103,8 +110,10 @@ export class DataService {
     /*** INGREDIENTS ****/
     getIngredients(term: string = null): Observable<Ingredient[]> {
         if (term !== null) {
-            return this.http
-                .get<Ingredient[]>(this.hostname + `ingredients/search?search=` + term);
+            // Against spoonacular API
+            let result = this.http
+                .get<Ingredient[]>(`https://api.spoonacular.com/food/ingredients/autocomplete?query=${term}&number=50&apiKey=${this.apiKey}&metaInformation=true`);
+            return result;
         } else {
             return of([]);
         }
@@ -112,14 +121,15 @@ export class DataService {
 
     /*** RECIPES ****/
     getRecipes(term: string = null): Observable<Recipe[]> {
-        if (term !== null && term !== "") {
-            return this.http
-                .get<Recipe[]>(this.hostname + `recipes/search?search=` + term);
-        } else {
-            return this.http
-                .get<Recipe[]>(this.hostname + `recipes`);
-        }
+        return this.http.get<Recipes>(`https://api.spoonacular.com/recipes/search?query=${term}&number=20&apiKey=${this.apiKey}`)
+            .pipe(map(result => result.results));
     }
+
+    /*** RECIPE INFORMATION ****/
+    getRecipeInformation(id: string = null): Observable<Recipe> {
+        return this.http.get<Recipe>(`https://api.spoonacular.com/recipes/${id}/information?apiKey=${this.apiKey}`)
+    }
+
 
     getRecipesByIngredient(ingredients: Ingredient[]): Observable<RecipeByIngredients[]> {
         if (ingredients !== null) {
@@ -128,7 +138,7 @@ export class DataService {
                 ingredientsString = ingredientsString.concat(ingredient.name + ",");
             });
             return this.http
-                .get<RecipeByIngredients[]>(this.hostname + `recipes/findByIngredients?ingredients=${ingredientsString}`);
+                .get<RecipeByIngredients[]>(`https://api.spoonacular.com/recipes/findByIngredients?ingredients=${ingredientsString}&apiKey=${this.apiKey}`);
         } else {
             return of([]);
         }

@@ -38,7 +38,7 @@ export class IngredientsComponent implements OnInit {
    */
   addItem($selectedIngredient) {
     if ($selectedIngredient) {
-      this.dataService.saveIngredient(this.user.id, false, $selectedIngredient.id)
+      this.dataService.saveIngredient(this.user.id, false, $selectedIngredient)
         .pipe(tap(() => this.dataService.setUserByName("Miro")))
         .subscribe(() => this.loadAndSortSavedIngredients());
     }

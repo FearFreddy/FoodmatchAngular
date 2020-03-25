@@ -4,7 +4,7 @@ import { DataService, Recipe, RecipeByIngredients, Ingredient, User } from "../d
 import { faTimes, faStar, faChevronDown, faChevronUp, faCheck } from "@fortawesome/free-solid-svg-icons";
 import { faStar as faStarRegular } from "@fortawesome/free-regular-svg-icons";
 import { from, Subscription } from 'rxjs';
-import { map, concatMap, tap, finalize } from 'rxjs/operators'
+import { concatMap, finalize } from 'rxjs/operators'
 
 
 @Component({
@@ -26,12 +26,10 @@ export class RecipesComponent implements OnInit {
   showInstructions = false;
   loadingSpinner = false;
 
+  recipeDetailLoaded = false;
+
   filters = [
     { text: 'based on your stock', status: false },
-    { text: 'vegan', status: false },
-    { text: 'vegetarian', status: false },
-    { text: 'gluten free', status: false },
-    { text: 'dairy free', status: false },
     { text: 'show only favorites', status: false },
   ]
   searchTerm = "";
@@ -45,7 +43,7 @@ export class RecipesComponent implements OnInit {
     this.subscription = this.dataService.getUser().subscribe(
       user => {
         if (user) {
-          if (!this.user && user.savedIngredients.length != 0) {
+          if (!this.user && user.availableSavedIngredients.length != 0) {
             this.filters[0].status = true;
           }
           this.user = user;
@@ -62,23 +60,34 @@ export class RecipesComponent implements OnInit {
   }
 
   openLg(content) {
-    this.modalService.open(content, { size: 'lg' });
+    const ref = this.modalService.open(content, { size: 'lg' });
+    ref.result.then(value => {
+      console.log(value); // Success!
+      this.recipeDetailLoaded = false;
+    }, reason => {
+      console.log(reason); // Error!
+      this.recipeDetailLoaded = false;
+    });
   }
 
   selectRecipe($event) {
-    this.clickedRecipe = $event;
+    this.dataService.getRecipeInformation($event.id).subscribe(recipe => {
+      this.clickedRecipe = { ...recipe, ...$event };
+      this.recipeDetailLoaded = true;
+    });
     this.showInstructions = false;
   }
 
   shoppingListContainsAll(ingredients) {
-    return ingredients.every(ingredient => this.user.neededIngredients.includes(ingredient.id));
+    const userIngredients = this.user.neededSavedIngredients.map(ingr => ingr.id);
+    return ingredients.every(ingredient => userIngredients.includes(ingredient.id));
   }
 
   addToShoppingList($ingredients: Ingredient[]) {
     this.loadingSpinner = true;
     from($ingredients)
       .pipe(
-        concatMap(ingredient => this.dataService.saveIngredient(this.user.id, true, ingredient.id)),
+        concatMap(ingredient => this.dataService.saveIngredient(this.user.id, true, ingredient)),
         finalize(() => {
           this.dataService.setUserByName("Miro");
           this.loadingSpinner = false;
@@ -104,23 +113,15 @@ export class RecipesComponent implements OnInit {
       this.dataService.getIngredientsOfUser(this.user.id, false).subscribe(savedIngredients => {
         this.dataService.getRecipesByIngredient(savedIngredients).subscribe(recipes => {
           this.recipesByIngredient = recipes
-            .filter(recipe => this.filters[1].status ? recipe.recipe.vegan : true)
-            .filter(recipe => this.filters[2].status ? recipe.recipe.vegetarian : true)
-            .filter(recipe => this.filters[3].status ? recipe.recipe.glutenFree : true)
-            .filter(recipe => this.filters[4].status ? recipe.recipe.dairyFree : true)
-            .filter(recipe => this.filters[5].status ? this.user.favoriteRecipe.includes(recipe.recipe.id) : true)
-            .filter(recipe => this.searchTerm ? recipe.recipe.title.toLowerCase().includes(this.searchTerm.toLowerCase()) : true)
-            .sort((a, b) => a.missingIngredient.length - b.missingIngredient.length)
+            .filter(recipe => this.filters[1].status ? this.user.favoriteRecipe.includes(recipe.id) : true)
+            .filter(recipe => this.searchTerm ? recipe.title.toLowerCase().includes(this.searchTerm.toLowerCase()) : true)
+            .sort((a, b) => a.missedIngredients.length - b.missedIngredients.length)
         });
       });
     } else {
       this.dataService.getRecipes(this.searchTerm).subscribe((recipes) => {
         this.recipes = recipes
-          .filter(recipe => this.filters[1].status ? recipe.vegan : true)
-          .filter(recipe => this.filters[2].status ? recipe.vegetarian : true)
-          .filter(recipe => this.filters[3].status ? recipe.glutenFree : true)
-          .filter(recipe => this.filters[4].status ? recipe.dairyFree : true)
-          .filter(recipe => this.filters[5].status ? this.user.favoriteRecipe.includes(recipe.id) : true)
+          .filter(recipe => this.filters[1].status ? this.user.favoriteRecipe.includes(recipe.id) : true)
       });
     }
   }
