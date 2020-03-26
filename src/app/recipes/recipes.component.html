@@ -1,16 +1,28 @@
 <h2>Recipes</h2>
 <p>Look for recipes</p>
 
-<input type="text" class="form-control" (input)="loadRecipes()" [(ngModel)]="searchTerm"
+<input type="text" class="form-control" (input)="search($event.target.value)"
   placeholder="e.g. Soft and chewy lemon cookies, Pan-fried peanut butter jelly sandwich" />
 
 <br />
 
 <div class="filter-switches-container">
   <div class="custom-control custom-switch" *ngFor="let filter of filters">
-    <input type="checkbox" class="custom-control-input" id="{{filter.text}}" (change)="loadRecipes()"
+    <input type="checkbox" class="custom-control-input" id="{{filter.text}}" (change)="resetSearch()"
       [(ngModel)]="filter.status" checked>
     <label class="custom-control-label" for="{{filter.text}}">{{filter.text}}</label>
+  </div>
+</div>
+<div class="lds-roller-container" *ngIf="recipesLoading">
+  <div class="lds-roller">
+    <div></div>
+    <div></div>
+    <div></div>
+    <div></div>
+    <div></div>
+    <div></div>
+    <div></div>
+    <div></div>
   </div>
 </div>
 
@@ -20,7 +32,7 @@
 
 <ng-template #unfilteredRecipes>
   <div class="recipe-cards-container">
-    <div class="card" (click)="selectRecipe(recipe); openLg(unfiltered)" *ngFor="let recipe of recipes">
+    <div class="card" (click)="selectRecipe(recipe); openLg(unfiltered)" *ngFor="let recipe of recipes$ | async">
       <img src="https://spoonacular.com/recipeImages/{{ recipe.id }}-480x360.jpg" class="card-img-top" alt="...">
       <fa-icon size="2x" *ngIf="user.favoriteRecipe.includes(recipe.id)" class="fa-absolute"
         (click)="removeFavorite(recipe.id); $event.stopPropagation()" [icon]="faStar"></fa-icon>
@@ -41,7 +53,8 @@
 
 <ng-template #unfiltered let-modal>
   <div class="modal-content-container" *ngIf="recipeDetailLoaded">
-    <div class="card modal-card" style="width: 18rem;">
+    <div class="close-button" (click)="closeModal()">x</div>
+    <div class="card modal-card">
       <img src="https://spoonacular.com/recipeImages/{{ clickedRecipe.id }}-480x360.jpg" class="card-img-top" alt="...">
       <div class="card-body">
         <h4 class="card-title">{{ clickedRecipe.title }}</h4>
@@ -82,7 +95,7 @@
 
 <ng-template #filteredRecipes>
   <div class="recipe-cards-container">
-    <div class="card" (click)="selectRecipe(recipe); openLg(filtered)" *ngFor="let recipe of recipesByIngredient">
+    <div class="card" (click)="selectRecipe(recipe); openLg(filtered)" *ngFor="let recipe of recipes$ | async">
       <img src="https://spoonacular.com/recipeImages/{{ recipe.id }}-480x360.jpg" class="card-img-top" alt="...">
       <fa-icon size="2x" *ngIf="user.favoriteRecipe.includes(recipe.id)" class="fa-absolute"
         (click)="removeFavorite(recipe.id); $event.stopPropagation()" [icon]="faStar"></fa-icon>
@@ -105,7 +118,8 @@
 
 <ng-template #filtered let-modal>
   <div class="modal-content-container" *ngIf="recipeDetailLoaded">
-    <div class="card modal-card" style="width: 18rem;">
+    <div class="close-button" (click)="closeModal()">x</div>
+    <div class="card modal-card">
       <img src="https://spoonacular.com/recipeImages/{{ clickedRecipe.id }}-480x360.jpg" class="card-img-top" alt="...">
       <div class="card-body">
         <h4 class="card-title">{{ clickedRecipe.title }}</h4>

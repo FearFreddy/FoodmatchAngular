@@ -1,7 +1,7 @@
 <h2>Stock</h2>
 <p>Add ingredients to your stock</p>
 <ng-select (change)="addItem($event)" [items]="ingredients$ | async" bindLabel="name" [hideSelected]="true"
-  [trackByFn]="trackByFn" [minTermLength]="2" [loading]="ingredientsLoading"
+  [trackByFn]="trackByFn" [minTermLength]="3" [loading]="ingredientsLoading"
   typeToSearchText="e.g. Salt, Shrimp, Low fat cottage cheese" [typeahead]="ingredientInput$" (add)="onAdd($event)">
 </ng-select>
 <br />

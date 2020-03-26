@@ -3,14 +3,14 @@ import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { DataService, Recipe, RecipeByIngredients, Ingredient, User } from "../data.service";
 import { faTimes, faStar, faChevronDown, faChevronUp, faCheck } from "@fortawesome/free-solid-svg-icons";
 import { faStar as faStarRegular } from "@fortawesome/free-regular-svg-icons";
-import { from, Subscription } from 'rxjs';
-import { concatMap, finalize } from 'rxjs/operators'
+import { from, Subscription, Subject, Observable } from 'rxjs';
+import { concatMap, finalize, distinctUntilChanged, switchMap, debounceTime, flatMap, map, tap } from 'rxjs/operators'
 
 
 @Component({
   selector: 'app-recipes',
   templateUrl: './recipes.component.html',
-  styleUrls: ['./recipes.component.scss']
+  styleUrls: ['./recipes.component.scss'],
 })
 export class RecipesComponent implements OnInit {
   faTimes = faTimes;
@@ -20,9 +20,9 @@ export class RecipesComponent implements OnInit {
   faChevronUp = faChevronUp;
   faCheck = faCheck;
 
-  recipes: Recipe[];
-  recipesByIngredient: RecipeByIngredients[];
-  clickedRecipe = ""; // is either Recipe or RecipeByIngredient
+  recipes$: Observable<Recipe[] | RecipeByIngredients[]>;
+  clickedRecipe: Recipe | RecipeByIngredients; // is either Recipe or RecipeByIngredient
+  recipesLoading: boolean = false;
   showInstructions = false;
   loadingSpinner = false;
 
@@ -32,9 +32,12 @@ export class RecipesComponent implements OnInit {
     { text: 'based on your stock', status: false },
     { text: 'show only favorites', status: false },
   ]
-  searchTerm = "";
+  searchTerm$ = new Subject<string>();
+  currentTerm: string = "";
   user: User;
   subscription: Subscription
+
+  modalRef: any;
 
   constructor(private dataService: DataService, private modalService: NgbModal) { }
 
@@ -53,15 +56,31 @@ export class RecipesComponent implements OnInit {
           this.filters[0].status = false;
         }
       });
+    this.searchTerm$.subscribe(term => {
+      this.currentTerm = term;
+    })
+    this.resetSearch();
+  }
+
+  resetSearch() {
+    const backup = this.currentTerm;
+    this.searchTerm$.next(backup + "a");
+    setTimeout(() => {
+      this.searchTerm$.next(backup);
+    }, 501)
   }
 
   toggleInstructions() {
     this.showInstructions = !this.showInstructions;
   }
 
+  closeModal() {
+    this.modalRef.close();
+  }
+
   openLg(content) {
-    const ref = this.modalService.open(content, { size: 'lg' });
-    ref.result.then(value => {
+    this.modalRef = this.modalService.open(content, { size: 'lg', centered: true });
+    this.modalRef.result.then(value => {
       console.log(value); // Success!
       this.recipeDetailLoaded = false;
     }, reason => {
@@ -108,22 +127,39 @@ export class RecipesComponent implements OnInit {
     });
   }
 
+  search(term: string) {
+    this.searchTerm$.next(term);
+  }
+
   loadRecipes() {
-    if (this.filters[0].status) {
-      this.dataService.getIngredientsOfUser(this.user.id, false).subscribe(savedIngredients => {
-        this.dataService.getRecipesByIngredient(savedIngredients).subscribe(recipes => {
-          this.recipesByIngredient = recipes
-            .filter(recipe => this.filters[1].status ? this.user.favoriteRecipe.includes(recipe.id) : true)
-            .filter(recipe => this.searchTerm ? recipe.title.toLowerCase().includes(this.searchTerm.toLowerCase()) : true)
-            .sort((a, b) => a.missedIngredients.length - b.missedIngredients.length)
-        });
-      });
-    } else {
-      this.dataService.getRecipes(this.searchTerm).subscribe((recipes) => {
-        this.recipes = recipes
-          .filter(recipe => this.filters[1].status ? this.user.favoriteRecipe.includes(recipe.id) : true)
-      });
-    }
+    this.recipes$ = this.searchTerm$.pipe(
+      tap(() => (this.recipesLoading = true)),
+      debounceTime(500),
+      distinctUntilChanged(),
+      switchMap(term => {
+        if (this.filters[0].status) {
+          return this.dataService.getIngredientsOfUser(this.user.id, false).pipe(
+            flatMap(savedIngredients =>
+              this.dataService.getRecipesByIngredient(savedIngredients).pipe(
+                map(recipes =>
+                  recipes
+                    .filter(recipe => this.filters[1].status ? this.user.favoriteRecipe.includes(recipe.id) : true)
+                    .filter(recipe => term ? recipe.title.toLowerCase().includes(term.toLowerCase()) : true)
+                    .sort((a, b) => a.missedIngredients.length - b.missedIngredients.length)
+                ),
+                tap(() => (this.recipesLoading = false))
+              )
+            )
+          )
+        } else {
+          return this.dataService.getRecipes(term).pipe(
+            map(recipes => recipes
+              .filter(recipe => this.filters[1].status ? this.user.favoriteRecipe.includes(recipe.id) : true)),
+            tap(() => (this.recipesLoading = false))
+          )
+        }
+      })
+    );
   }
 }
 
