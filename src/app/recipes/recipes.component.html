@@ -78,8 +78,8 @@
     </div>
     <div class="recipe-information">
       <h5>Ingredients ({{ clickedRecipe.extendedIngredients.length }}): </h5>
-      <span class="badge badge-dark"
-        *ngFor="let ingredient of clickedRecipe.extendedIngredients">{{ingredient.name}}</span>
+      <span class="badge badge-dark" *ngFor="let ingredient of clickedRecipe.extendedIngredients">{{ingredient.name}} -
+        {{ingredient.amount}} {{ingredient.unit}}</span>
       <h5>
         Instructions
         <fa-icon class="fa-chevron" (click)="toggleInstructions()"
@@ -143,10 +143,12 @@
     </div>
     <div class="recipe-information">
       <h5>Available ingredients ({{ clickedRecipe.usedIngredients.length }}): </h5>
-      <span class="badge badge-dark" *ngFor="let available of clickedRecipe.usedIngredients">{{available.name}}</span>
+      <span class="badge badge-dark" *ngFor="let available of clickedRecipe.usedIngredients">{{available.name}} -
+        {{available.amount}} {{available.unit}}</span>
       <br />
       <h5>Missing ingredients ({{ clickedRecipe.missedIngredients.length }}): </h5>
-      <span class="badge badge-dark" *ngFor="let missing of clickedRecipe.missedIngredients">{{missing.name}}</span>
+      <span class="badge badge-dark" *ngFor="let missing of clickedRecipe.missedIngredients">{{missing.name}} -
+        {{missing.amount}} {{missing.unit}}</span>
       <button class="btn btn-success" (click)="addToShoppingList(clickedRecipe.missedIngredients)"
         *ngIf="!shoppingListContainsAll(clickedRecipe.missedIngredients)">
         Add missing ingredients to shopping list <b style="font-size: 1.2em; line-height: 1em;"

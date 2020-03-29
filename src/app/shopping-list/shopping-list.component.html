@@ -1,20 +1,36 @@
 <h2>Shopping List</h2>
 <p>Add ingredients to your shopping list</p>
-<ng-select (change)="addItem($event)" [items]="ingredients$ | async" bindLabel="name" [hideSelected]="true"
-  [trackByFn]="trackByFn" [minTermLength]="2" [loading]="ingredientsLoading"
+<ng-select (change)="addItem($event)" [items]="ingredients$ | async" [addTag]="true" bindLabel="name"
+  [hideSelected]="true" [trackByFn]="trackByFn" [minTermLength]="2" [loading]="ingredientsLoading"
   typeToSearchText="e.g. Salt, Shrimp, Low fat cottage cheese" [typeahead]="ingredientInput$" (add)="onAdd($event)">
 </ng-select>
 <br />
 <br />
 <h3>Your shopping list:</h3>
 <div class="shopping-list" style="margin-bottom:100px">
+  <div class="lds-roller-container" *ngIf="loadingSpinner">
+    <div class="lds-roller">
+      <div></div>
+      <div></div>
+      <div></div>
+      <div></div>
+      <div></div>
+      <div></div>
+      <div></div>
+      <div></div>
+    </div>
+  </div>
   <span class="aisle-container" *ngFor="let aisle of shoppingList | keyvalue">
     <h1>{{aisle.key}}</h1>
     <span class="badge badge-light ingredient-container" *ngFor="let ingredient of aisle.value">
-      <label class="container"><span>{{ ingredient.name }}</span>
+      <label *ngIf="aisle.key !== 'Other stuff'" class="container"><span>{{ ingredient.name }}</span>
         <input type="checkbox" (click)="boughtItem(ingredient)" />
         <span class="checkmark"></span>
       </label>
+      <span *ngIf="aisle.key == 'Other stuff'">{{ ingredient.name }}</span>
+      <span class="closebtn" (click)="deleteItem(ingredient, 0)">
+        <fa-icon [icon]="faTimes"></fa-icon>
+      </span>
     </span>
   </span>
 </div>

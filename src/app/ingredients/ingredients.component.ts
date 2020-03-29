@@ -20,6 +20,8 @@ export class IngredientsComponent implements OnInit {
   user: User;
   subscription: Subscription
 
+  loadingSpinner: boolean = false;
+
   constructor(private dataService: DataService) { }
 
   ngOnInit() {
@@ -58,7 +60,9 @@ export class IngredientsComponent implements OnInit {
    * Loads the saved ingredients of the user, sorts them by the aisles and stores it in this.savedIngredientsSorted
    */
   private loadAndSortSavedIngredients() {
+    this.loadingSpinner = true;
     this.dataService.getIngredientsOfUser(this.user.id, false).subscribe(savedIngredients => {
+      this.loadingSpinner = false;
       savedIngredients.forEach(savedIngredient => {
         // check if aisle of selected ingredient is already inside the this.savedIngredientsSorted object
         if (savedIngredient.aisle in this.savedIngredientsSorted) {

@@ -23,8 +23,12 @@ export class ShoppingListComponent implements OnInit {
   ingredientInput$ = new Subject<string>();
   shoppingList: Object = {};
 
+  otherItems: any[];
+
   user: User;
   subscription: Subscription
+
+  loadingSpinner: boolean = false;
 
   constructor(private dataService: DataService) { }
 
@@ -41,13 +45,17 @@ export class ShoppingListComponent implements OnInit {
 
   addItem($selectedIngredient) {
     if ($selectedIngredient) {
+      if (!$selectedIngredient.id) {
+        $selectedIngredient.aisle = "Other stuff"
+        $selectedIngredient.id = new Date().valueOf();
+      }
       this.dataService.saveIngredient(this.user.id, true, $selectedIngredient)
         .pipe(tap(() => this.dataService.setUserByName("Miro")))
         .subscribe(() => this.loadAndSortShoppingList());
     }
   }
 
-  deleteItem($selectedIngredient) {
+  deleteItem($selectedIngredient, timeout) {
     this.dataService.removeIngredient(this.user.id, true, $selectedIngredient.id).subscribe(() => {
       setTimeout(() => {
         this.shoppingList[$selectedIngredient.aisle] = this.shoppingList[$selectedIngredient.aisle].filter(ing => ($selectedIngredient.id !== ing.id));
@@ -55,19 +63,21 @@ export class ShoppingListComponent implements OnInit {
           delete this.shoppingList[$selectedIngredient.aisle];
         }
         this.dataService.setUserByName("Miro");
-      }, 500)
+      }, timeout)
     });
   }
 
   boughtItem($selectedIngredient) {
-    this.dataService.saveIngredient(this.user.id, false, $selectedIngredient).subscribe(() => this.deleteItem($selectedIngredient));
+    this.dataService.saveIngredient(this.user.id, false, $selectedIngredient).subscribe(() => this.deleteItem($selectedIngredient, 500));
   }
 
   /**
    * Loads the saved ingredients of the user, sorts them by the aisles and stores it in this.shoppingList
    */
   private loadAndSortShoppingList() {
+    this.loadingSpinner = true;
     this.dataService.getIngredientsOfUser(this.user.id, true).subscribe(savedIngredients => {
+      this.loadingSpinner = false;
       savedIngredients.forEach(savedIngredient => {
         // check if aisle of selected ingredient is already inside the this.shoppingList object
         if (savedIngredient.aisle in this.shoppingList) {
