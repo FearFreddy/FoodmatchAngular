@@ -150,7 +150,7 @@ export class DataService {
                 ingredientsString = ingredientsString.concat(ingredient.name + ",");
             });
             return this.http
-                .get<RecipeByIngredients[]>(`https://api.spoonacular.com/recipes/findByIngredients?number=100&ingredients=${ingredientsString}&apiKey=${this.apiKey}`)
+                .get<RecipeByIngredients[]>(`https://api.spoonacular.com/recipes/findByIngredients?number=100&ranking=2&ingredients=${ingredientsString}&apiKey=${this.apiKey}`)
                 .pipe(
                     catchError(error => this.handleError(error))
                 );
