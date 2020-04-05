@@ -69,7 +69,7 @@ export class RecipesComponent implements OnInit {
     this.searchTerm$.next(backup + "a");
     setTimeout(() => {
       this.searchTerm$.next(backup);
-    }, 501)
+    }, 601)
   }
 
   toggleInstructions() {
@@ -155,10 +155,10 @@ export class RecipesComponent implements OnInit {
           )
         } else {
           let diets = "";
-          if (this.filters[2]) {
+          if (this.filters[2].status) {
             diets = diets.concat("vegan,");
           }
-          if (this.filters[3]) {
+          if (this.filters[3].status) {
             diets = diets.concat("vegetarian");
           }
           return this.dataService.getRecipes(term, diets).pipe(
