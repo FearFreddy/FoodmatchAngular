@@ -156,10 +156,10 @@ export class RecipesComponent implements OnInit {
         } else {
           let diets = "";
           if (this.filters[2]) {
-            diets.concat("vegan,")
+            diets = diets.concat("vegan,");
           }
           if (this.filters[3]) {
-            diets.concat("vegetarian")
+            diets = diets.concat("vegetarian");
           }
           return this.dataService.getRecipes(term, diets).pipe(
             map(recipes => recipes
