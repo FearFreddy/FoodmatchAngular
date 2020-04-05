@@ -126,8 +126,8 @@ export class DataService {
     }
 
     /*** RECIPES ****/
-    getRecipes(term: string = null): Observable<Recipe[]> {
-        return this.http.get<Recipes>(`https://api.spoonacular.com/recipes/search?query=${term}&number=20&apiKey=${this.apiKey}`)
+    getRecipes(term: string = null, diets: string = null): Observable<Recipe[]> {
+        return this.http.get<Recipes>(`https://api.spoonacular.com/recipes/search?query=${term}&diet=${diets}&number=100&apiKey=${this.apiKey}`)
             .pipe(
                 map(result => result.results),
                 catchError(error => this.handleError(error))

@@ -7,11 +7,13 @@
 <br />
 
 <div class="filter-switches-container">
-  <div class="custom-control custom-switch" *ngFor="let filter of filters">
-    <input type="checkbox" class="custom-control-input" id="{{filter.text}}" (change)="resetSearch()"
-      [(ngModel)]="filter.status" checked>
-    <label class="custom-control-label" for="{{filter.text}}">{{filter.text}}</label>
-  </div>
+  <ng-container *ngFor="let filter of filters">
+    <div class="custom-control custom-switch" *ngIf="!filters[0].status || !filter.disableForIngredientSearch">
+      <input type="checkbox" class="custom-control-input" id="{{filter.text}}" (change)="resetSearch()"
+        [(ngModel)]="filter.status" checked>
+      <label class="custom-control-label" for="{{filter.text}}">{{filter.text}}</label>
+    </div>
+  </ng-container>
 </div>
 <div class="lds-roller-container" *ngIf="recipesLoading">
   <div class="lds-roller">

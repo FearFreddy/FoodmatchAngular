@@ -29,8 +29,10 @@ export class RecipesComponent implements OnInit {
   recipeDetailLoaded = false;
 
   filters = [
-    { text: 'based on your stock', status: false },
-    { text: 'show only favorites', status: false },
+    { text: 'based on your stock', status: false, disableForIngredientSearch: false },
+    { text: 'show only favorites', status: false, disableForIngredientSearch: false },
+    { text: 'vegan', status: false, disableForIngredientSearch: true },
+    { text: 'vegetarian', status: false, disableForIngredientSearch: true },
   ]
   searchTerm$ = new Subject<string>();
   currentTerm: string = "";
@@ -152,7 +154,14 @@ export class RecipesComponent implements OnInit {
             )
           )
         } else {
-          return this.dataService.getRecipes(term).pipe(
+          let diets = "";
+          if (this.filters[2]) {
+            diets.concat("vegan,")
+          }
+          if (this.filters[3]) {
+            diets.concat("vegetarian")
+          }
+          return this.dataService.getRecipes(term, diets).pipe(
             map(recipes => recipes
               .filter(recipe => this.filters[1].status ? this.user.favoriteRecipe.includes(recipe.id) : true)),
             tap(() => (this.recipesLoading = false))
